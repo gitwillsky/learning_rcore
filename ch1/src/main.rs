@@ -25,7 +25,7 @@ global_asm!(include_str!("entry.asm"));
 
 /// clear BSS segment
 pub fn clear_bss() {
-    extern "C" {
+    extern "C" { // 申明外部块，这样 rust 可以调用外部函数
         fn sbss();
         fn ebss();
     }
@@ -33,7 +33,7 @@ pub fn clear_bss() {
 }
 
 /// the rust entry-point of os
-#[no_mangle]
+#[no_mangle] // 不要修改此函数名称
 pub fn rust_main() -> ! {
     extern "C" {
         fn stext(); // begin addr of text segment
