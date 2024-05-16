@@ -1,5 +1,7 @@
 //! SBI console driver, for text output
 
+use sbi_rt::console_write_byte;
+
 use crate::sbi::console_putchar;
 use core::fmt::{self, Write};
 

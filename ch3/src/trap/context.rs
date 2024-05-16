@@ -7,9 +7,9 @@ use riscv::register::sstatus::{self, Sstatus, SPP};
 pub struct TrapContext {
     /// general regs [0..31]
     pub x: [usize; 32],
-    /// CSR sstatus
+    /// Supervisor Status 寄存器，包含处理器状态控制的关键标志位 
     pub sstatus: Sstatus,
-    /// CSR sepc
+    /// CSR sepc 指向发生异常的指令地址
     pub sepc: usize,
 }
 
@@ -22,7 +22,8 @@ impl TrapContext {
     /// init app context
     pub fn app_init_context(entry: usize, sp: usize) -> Self {
         let mut sstatus = sstatus::read(); // CSR status
-        sstatus.set_spp(SPP::User); // previous privilege mode: user mode
+        // 设置异常发生时处理器权限模式为 User 
+        sstatus.set_spp(SPP::User); 
         let mut cx = Self {
             x: [0; 32],
             sstatus,

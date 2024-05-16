@@ -1,5 +1,5 @@
-    .section .text.entry
-    .globl   _start
+    .section .text.entry            # 定义代码段 entry
+    .globl   _start                 # 定义全局符号
 _start:
     la       sp, boot_stack_top
     call     rust_main
