@@ -14,6 +14,7 @@
 
 use core::arch::global_asm;
 
+use log::info;
 use riscv::register::{
     scause::{self, Exception, Interrupt, Trap},
     sie, stval, stvec,
@@ -46,6 +47,7 @@ pub fn init() {
 /// timer interrupt enabled
 pub fn enable_timer_interrupt() {
     unsafe {
+        // 设置 sie.stie 寄存器，使能时钟中断
         sie::set_stimer();
     }
 }
@@ -61,14 +63,15 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
             cx.x[10] = syscall(cx.x[17], [cx.x[10], cx.x[11], cx.x[12]]) as usize;
         }
         Trap::Exception(Exception::StoreFault) | Trap::Exception(Exception::StorePageFault) => {
-            println!("[kernel] PageFault in application, bad addr = {:#x}, bad instruction = {:#x}, kernel killed it.", stval, cx.sepc);
+            info!("[kernel] PageFault in application, bad addr = {:#x}, bad instruction = {:#x}, kernel killed it.", stval, cx.sepc);
             exit_current_and_run_next();
         }
         Trap::Exception(Exception::IllegalInstruction) => {
+            info!("[kernel] illegalInstruction");
             exit_current_and_run_next();
         }
         Trap::Interrupt(Interrupt::SupervisorTimer) => {
-            println!("Interrupt Supervisor Timer handler call");
+            info!("Interrupt Supervisor Timer handler call");
             set_next_trigger();
             suspend_current_and_run_next();
         }

@@ -1,5 +1,6 @@
 OUTPUT_ARCH(riscv)
-ENTRY(_start)
+/* 入口点为 entry.asm 中定义的 _start */
+ENTRY(_start) 
 BASE_ADDRESS = 0x80200000;
 
 SECTIONS

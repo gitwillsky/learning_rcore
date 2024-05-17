@@ -15,8 +15,11 @@ mod switch;
 #[allow(clippy::module_inception)]
 mod task;
 
+use core::num;
+
 pub use context::TaskContext;
 use lazy_static::lazy_static;
+use log::info;
 
 use crate::{
     config::MAX_APP_NUM, loader::{get_num_app, init_app_cx}, sbi::shutdown, sync::UPSafeCell, task::task::TaskStatus
@@ -85,11 +88,9 @@ impl TaskManager {
         drop(inner);
         let mut _unused = TaskContext::zero_init();
         // before this, we should drop local variables that must be dropped manually
-        println!("1");
         unsafe {
             __switch(&mut _unused as *mut TaskContext, next_task_cx_ptr);
         }
-        println!("2");
         panic!("unreachable in run_first_task");
     }
 
@@ -128,7 +129,7 @@ impl TaskManager {
             }
             // go back to user mode
         } else {
-            println!("All applications completed!");
+            info!("All applications completed!");
             shutdown(true);
         }
     }

@@ -27,6 +27,7 @@ use core::arch::global_asm;
 mod board;
 #[macro_use]
 mod console;
+mod lang_items;
 mod sync;
 pub mod syscall;
 pub mod task;
@@ -35,7 +36,8 @@ pub mod loader;
 mod sbi;
 mod timer;
 mod trap;
-mod lang_items;
+mod logging;
+
 
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
@@ -57,6 +59,7 @@ fn clear_bss() {
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
+    logging::init();
     println!("[kernel] Hello, rCore OS");
     trap::init();
     loader::load_apps();
