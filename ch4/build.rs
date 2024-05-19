@@ -2,16 +2,16 @@ use std::fs::{read_dir, File};
 use std::io::{Result, Write};
 
 fn main() {
-    println!("cargo:rerun-if-changed=../ch3_user/src/");
+    println!("cargo:rerun-if-changed=../ch4_user/src/");
     println!("cargo:rerun-if-changed={}", TARGET_PATH);
     insert_app_data().unwrap();
 }
 
-static TARGET_PATH: &str = "../ch3_user/target/riscv64gc-unknown-none-elf/release/";
+static TARGET_PATH: &str = "../ch4_user/target/riscv64gc-unknown-none-elf/release/";
 
 fn insert_app_data() -> Result<()> {
     let mut f = File::create("src/link_app.S").unwrap();
-    let mut apps: Vec<_> = read_dir("../ch3_user/src/bin")
+    let mut apps: Vec<_> = read_dir("../ch4_user/src/bin")
         .unwrap()
         .into_iter()
         .map(|dir_entry| {
