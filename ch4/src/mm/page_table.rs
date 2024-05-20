@@ -121,6 +121,7 @@ impl PageTable {
             if !pte.is_valid() {
                 return None;
             }
+            ppn = pte.ppn();
         }
         result
     }

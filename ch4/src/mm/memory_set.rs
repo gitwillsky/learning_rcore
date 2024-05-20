@@ -6,7 +6,7 @@ use log::{debug, info, warn};
 use riscv::{addr::page, register::satp};
 
 use crate::{
-    board::MMIO,
+    board::{MEMORY_END, MMIO},
     config::{PAGE_SIZE, TRAMPOLINE, TRAP_CONTEXT, USER_STACK_SIZE},
     mm::address::StepByOne,
     sync::UPSafeCell,
@@ -252,6 +252,16 @@ impl MemorySet {
             ),
             None,
         );
+        debug!("mapping physical memory");
+        memory_set.push(
+            MapArea::new(
+                (ekernel as usize).into(),
+                MEMORY_END.into(),
+                MapType::Identical,
+                MapPermission::R | MapPermission::W,
+            ),
+            None,
+        );
         debug!("mapping memory-mapped registers");
         for pair in MMIO {
             memory_set.push(
@@ -402,6 +412,6 @@ pub fn remap_test() {
         .page_table
         .translate(mid_data.floor())
         .unwrap()
-        .writable(),);
+        .executable(),);
     println!("remap_test passed!");
 }

@@ -44,15 +44,18 @@ __alltraps:
     jr         t1
 
 __restore:
-# now sp->kernel stack(after allocated), sscratch->user stack
-# restore sstatus/sepc
+# a0: *TrapContext in user space(Constant); a1: user space token
+# switch to user space
+    csrw       satp, a1
+    sfence.vma
+    csrw       sscratch, a0
+    mv         sp, a0
+# now sp points to TrapContext in user space, start restoring based on it
     ld         t0, 32*8(sp)
     ld         t1, 33*8(sp)
-    ld         t2, 2*8(sp)
     csrw       sstatus, t0
     csrw       sepc, t1
-    csrw       sscratch, t2
-# restore general-purpuse registers except sp/tp
+# restore general purpose registers except x0/sp/tp
     ld         x1, 1*8(sp)
     ld         x3, 3*8(sp)
     .set       n, 5
@@ -60,8 +63,6 @@ __restore:
     LOAD_GP    %n
     .set       n, n+1
     .endr
-# release TrapContext on kernel stack
-    addi       sp, sp, 34*8
-# now sp->kernel stack, sscratch->user stack
-    csrrw      sp, sscratch, sp
+# back to user stack
+    ld         sp, 2*8(sp)
     sret

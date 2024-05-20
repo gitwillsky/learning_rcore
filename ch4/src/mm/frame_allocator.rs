@@ -5,6 +5,7 @@ use core::fmt::Debug;
 
 use alloc::vec::Vec;
 use lazy_static::lazy_static;
+use log::{debug, info};
 
 use crate::{board::MEMORY_END, mm::address::PhysAddr, sync::UPSafeCell};
 
@@ -126,11 +127,10 @@ fn frame_dealloc(ppn: PhysPageNum) {
 /// a simple test for frame allocator
 pub fn frame_allocator_tester() {
     let mut v: Vec<FrameTracker> = Vec::new();
-
     for i in 0..5 {
         let frame = frame_alloc().unwrap();
         println!("{:?}", frame);
-        v.push(frame); 
+        v.push(frame);
     }
 
     v.clear();
@@ -139,6 +139,6 @@ pub fn frame_allocator_tester() {
         println!("{:?}", frame);
         v.push(frame);
     }
-     drop(v);
-     println!("frame_allocator_test passed!");
+    drop(v);
+    println!("frame_allocator_test passed!");
 }

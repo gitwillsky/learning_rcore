@@ -5,7 +5,7 @@ use core::iter::Map;
 use crate::{
     config::{kernel_stack_position, TRAP_CONTEXT},
     mm::{MapPermission, MemorySet, PhysPageNum, VirtAddr, KERNEL_SPACE},
-    trap::TrapContext,
+    trap::{trap_handler, TrapContext},
 };
 
 use super::context::TaskContext;
@@ -38,13 +38,23 @@ impl TaskControlBlock {
         );
         let task_control_block = Self {
             task_status,
-            task_cx: todo!(), 
+            task_cx: TaskContext::goto_trap_return(kernel_stack_top),
             memory_set,
             trap_cx_ppn,
-            base_size: todo!(),
-            heap_bottom: todo!(),
-            program_brk: todo!(),
+            base_size: user_sp,
+            heap_bottom: user_sp,
+            program_brk: user_sp,
         };
+        // prepare TrapContext in user space
+        let trap_cx = task_control_block.get_trap_cx();
+        *trap_cx = TrapContext::app_init_context(
+            entry_point,
+            user_sp,
+            KERNEL_SPACE.exclusive_access().token(),
+            kernel_stack_top,
+            trap_handler as usize,
+        );
+        task_control_block
     }
     pub fn get_trap_cx(&self) -> &'static mut TrapContext {
         self.trap_cx_ppn.get_mut()
@@ -52,11 +62,31 @@ impl TaskControlBlock {
     pub fn get_user_token(&self) -> usize {
         self.memory_set.token()
     }
+    /// change the location of program break. return None if failed.
+    pub fn change_program_brk(&mut self, size: i32) -> Option<usize> {
+        let old_break = self.program_brk;
+        let new_break = self.program_brk as isize + size as isize;
+        if new_break < self.heap_bottom as isize {
+            return None;
+        }
+        let result = if size < 0 {
+            self.memory_set
+                .shrink_to(VirtAddr(self.heap_bottom), VirtAddr(new_break as usize))
+        } else {
+            self.memory_set
+                .append_to(VirtAddr(self.heap_bottom), VirtAddr(new_break as usize))
+        };
+        if result {
+            self.program_brk = new_break as usize;
+            Some(old_break)
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum TaskStatus {
-    UnInit,
     Ready,
     Running,
     Exited,

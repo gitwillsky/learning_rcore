@@ -7,10 +7,16 @@ use riscv::register::sstatus::{self, Sstatus, SPP};
 pub struct TrapContext {
     /// general regs [0..31]
     pub x: [usize; 32],
-    /// Supervisor Status 寄存器，包含处理器状态控制的关键标志位 
+    /// Supervisor Status 寄存器，包含处理器状态控制的关键标志位
     pub sstatus: Sstatus,
     /// CSR sepc 指向发生异常的指令地址
     pub sepc: usize,
+    /// address of page table
+    pub kernel_satp: usize,
+    /// kernel stack
+    pub kernel_sp: usize,
+    /// address of trap_handler function
+    pub trap_handler: usize,
 }
 
 impl TrapContext {
@@ -20,14 +26,23 @@ impl TrapContext {
     }
 
     /// init app context
-    pub fn app_init_context(entry: usize, sp: usize) -> Self {
+    pub fn app_init_context(
+        entry: usize,
+        sp: usize,
+        kernel_satp: usize,
+        kernel_sp: usize,
+        trap_handler: usize,
+    ) -> Self {
         let mut sstatus = sstatus::read(); // CSR status
-        // 设置异常发生时处理器权限模式为 User 
-        sstatus.set_spp(SPP::User); 
+                                           // 设置异常发生时处理器权限模式为 User
+        sstatus.set_spp(SPP::User);
         let mut cx = Self {
             x: [0; 32],
             sstatus,
             sepc: entry, // entry point of app
+            kernel_satp,
+            kernel_sp,
+            trap_handler,
         };
         cx.set_sp(sp); // app's user stack pointer
         cx // return initial Trap Context of app

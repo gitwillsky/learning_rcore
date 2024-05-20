@@ -67,9 +67,10 @@ fn clear_bss() {
 pub fn rust_main() -> ! {
     clear_bss();
     logging::init();
-    println!("[kernel] Hello, rCore OS");
+    mm::init();
+//    mm::frame_allocator_tester();
+    mm::remap_test();
     trap::init();
-    loader::load_apps();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
     task::run_first_task();

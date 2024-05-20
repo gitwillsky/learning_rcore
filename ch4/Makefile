@@ -1,21 +1,21 @@
-# building
+# Building
 TARGET := riscv64gc-unknown-none-elf
 MODE := release
 KERNEL_ELF := target/$(TARGET)/$(MODE)/os
 KERNEL_BIN := $(KERNEL_ELF).bin
 DISASM_TMP := target/$(TARGET)/$(MODE)/asm
 
-# building mode argument
-ifeq ($(MODE), release) 
-	MODE_ARG := --release
-endif
-
-# motherboard
+# BOARD
 BOARD := qemu
 SBI ?= rustsbi
 BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin
 
-# kernel entry
+# Building mode argument
+ifeq ($(MODE), release)
+	MODE_ARG := --release
+endif
+
+# KERNEL ENTRY
 KERNEL_ENTRY_PA := 0x80200000
 
 # Binutils
@@ -37,6 +37,7 @@ $(KERNEL_BIN): kernel
 	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $@
 
 kernel:
+	@cd ../ch4_user && make build
 	@echo Platform: $(BOARD)
 	@cp src/linker-$(BOARD).ld src/linker.ld
 	@cargo build $(MODE_ARG)
@@ -63,4 +64,16 @@ QEMU_ARGS := -machine virt \
 run-inner: build
 	@qemu-system-riscv64 $(QEMU_ARGS)
 
-.PHONY: build env kernel clean disasm disasm-vim run-inner
+debug: build
+	@tmux new-session -d \
+		"qemu-system-riscv64 $(QEMU_ARGS) -s -S" && \
+		tmux split-window -h "riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'" && \
+		tmux -2 attach-session -d
+
+gdbserver: build
+	@qemu-system-riscv64 $(QEMU_ARGS) -s -S
+
+gdbclient:
+	@riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
+
+.PHONY: build env kernel clean disasm disasm-vim run-inner gdbserver gdbclient
