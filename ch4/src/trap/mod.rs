@@ -43,7 +43,7 @@ pub fn init() {
 #[no_mangle]
 /// unimplement: traps/interrupts/exceptions from kernel mode
 pub fn trap_from_kernel() -> ! {
-    panic!("a trap from kernel");
+    panic!("a trap {:?} from kernel", scause::read().cause());
 }
 
 fn set_kernel_trap_entry() {

@@ -21,7 +21,6 @@ fn insert_app_data() -> Result<()> {
         })
         .collect();
     apps.sort();
-
     writeln!(
         f,
         r#"
@@ -46,8 +45,9 @@ _num_app:
     .section .data
     .global app_{0}_start
     .global app_{0}_end
+    .align 3
 app_{0}_start:
-    .incbin "{2}{1}.bin"
+    .incbin "{2}{1}"
 app_{0}_end:"#,
             idx, app, TARGET_PATH
         )?;

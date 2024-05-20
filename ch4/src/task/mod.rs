@@ -66,6 +66,7 @@ lazy_static! {
         for i in 0..num_app {
             tasks.push(TaskControlBlock::new(get_app_data(i), i));
         }
+        debug!("task manager init done!");
         TaskManager {
             num_app,
             inner: unsafe {
