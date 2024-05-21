@@ -14,7 +14,7 @@ mod page_table;
 
 pub use address::{PhysAddr, PhysPageNum, VirtAddr, VirtPageNum};
 pub use frame_allocator::{frame_alloc, FrameTracker, frame_allocator_tester};
-use log::info;
+use log::{debug, info};
 pub use memory_set::remap_test;
 pub use memory_set::{MapPermission, MemorySet, KERNEL_SPACE};
 pub use page_table::{translated_byte_buffer, PageTableEntry};
@@ -24,5 +24,5 @@ pub fn init() {
     heap_allocator::init_heap();
     frame_allocator::init_frame_allocator();
     KERNEL_SPACE.exclusive_access().activate();
-    info!("mm init done!");
+    debug!("[kernel] init mm done!");
 }

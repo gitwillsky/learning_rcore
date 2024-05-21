@@ -59,14 +59,14 @@ pub struct TaskManagerInner {
 lazy_static! {
     /// Global variable: TASK_MANAGER
     pub static ref TASK_MANAGER: TaskManager = {
-        debug!("init TASK MANAGER");
+        debug!("[kernel] init TASK MANAGER");
         let num_app = get_num_app();
-        info!("application count={}", num_app);
+        info!("[kernel] application count={}", num_app);
         let mut tasks: Vec<TaskControlBlock> = Vec::new();
         for i in 0..num_app {
             tasks.push(TaskControlBlock::new(get_app_data(i), i));
         }
-        debug!("task manager init done!");
+        debug!("[kernel] task manager init done!");
         TaskManager {
             num_app,
             inner: unsafe {
@@ -133,7 +133,7 @@ impl TaskManager {
             }
             // go back to user mode
         } else {
-            info!("All applications completed!");
+            info!("[kernel] All applications completed!");
             shutdown(false);
         }
     }

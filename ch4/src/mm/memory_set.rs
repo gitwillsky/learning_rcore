@@ -205,14 +205,14 @@ impl MemorySet {
         // map trampoline
         memory_set.map_trampoline();
         // map kernel sections
-        info!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
-        info!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
-        info!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
-        info!(
+       debug!("[kernel] .text [{:#x}, {:#x})", stext as usize, etext as usize);
+        debug!("[kernel] .rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
+        debug!("[kernel] .data [{:#x}, {:#x})", sdata as usize, edata as usize);
+        debug!(
             ".bss [{:#x}, {:#x})",
             sbss_with_stack as usize, ebss as usize
         );
-        debug!("mapping .text section");
+        debug!("[kernel] mapping .text section");
         memory_set.push(
             MapArea::new(
                 (stext as usize).into(),
@@ -222,7 +222,7 @@ impl MemorySet {
             ),
             None,
         );
-        debug!("mapping .rodata section");
+        debug!("[kernel] mapping .rodata section");
         memory_set.push(
             MapArea::new(
                 (srodata as usize).into(),
@@ -232,7 +232,7 @@ impl MemorySet {
             ),
             None,
         );
-        debug!("mapping .data section");
+        debug!("[kernel] mapping .data section");
         memory_set.push(
             MapArea::new(
                 (sdata as usize).into(),
@@ -242,7 +242,7 @@ impl MemorySet {
             ),
             None,
         );
-        debug!("mapping .bss section");
+        debug!("[kernel] mapping .bss section");
         memory_set.push(
             MapArea::new(
                 (sbss_with_stack as usize).into(),
@@ -252,7 +252,7 @@ impl MemorySet {
             ),
             None,
         );
-        debug!("mapping physical memory");
+        debug!("[kernel] mapping physical memory");
         memory_set.push(
             MapArea::new(
                 (ekernel as usize).into(),
@@ -262,7 +262,7 @@ impl MemorySet {
             ),
             None,
         );
-        debug!("mapping memory-mapped registers");
+        debug!("[kernel] mapping memory-mapped registers");
         for pair in MMIO {
             memory_set.push(
                 MapArea::new(

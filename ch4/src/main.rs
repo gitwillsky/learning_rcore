@@ -34,17 +34,17 @@ use core::arch::global_asm;
 mod board;
 #[macro_use]
 mod console;
+pub mod config;
 mod lang_items;
+pub mod loader;
+mod logging;
+mod mm;
+mod sbi;
 mod sync;
 pub mod syscall;
 pub mod task;
-pub mod config;
-pub mod loader;
-mod sbi;
 mod timer;
 mod trap;
-mod logging;
-mod mm;
 
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
@@ -68,8 +68,8 @@ pub fn rust_main() -> ! {
     clear_bss();
     logging::init();
     mm::init();
-//    mm::frame_allocator_tester();
-    mm::remap_test();
+    //    mm::frame_allocator_tester();
+    //    mm::remap_test();
     trap::init();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
