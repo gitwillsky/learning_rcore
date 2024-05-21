@@ -6,6 +6,7 @@ use super::{
 };
 use alloc::vec::{self, Vec};
 use bitflags::bitflags;
+use log::debug;
 
 bitflags! {
     /// page table entry flags
@@ -135,7 +136,7 @@ impl PageTable {
     #[allow(unused)]
     pub fn unmap(&mut self, vpn: VirtPageNum) {
         let pte = self.find_pte(vpn).unwrap();
-        assert!(!pte.is_valid(), "vpn {:?} is invalid before unmapping", vpn);
+        assert!(pte.is_valid(), "vpn {:?} is invalid before unmapping", vpn);
         *pte = PageTableEntry::empty();
     }
     pub fn translate(&self, vpn: VirtPageNum) -> Option<PageTableEntry> {
