@@ -157,7 +157,7 @@ impl MapArea {
     }
 }
 
-/// memory set structure, controls virtual memory space
+///  controls virtual memory space
 pub struct MemorySet {
     page_table: PageTable,
     areas: Vec<MapArea>,
@@ -205,9 +205,18 @@ impl MemorySet {
         // map trampoline
         memory_set.map_trampoline();
         // map kernel sections
-       debug!("[kernel] .text [{:#x}, {:#x})", stext as usize, etext as usize);
-        debug!("[kernel] .rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
-        debug!("[kernel] .data [{:#x}, {:#x})", sdata as usize, edata as usize);
+        debug!(
+            "[kernel] .text [{:#x}, {:#x})",
+            stext as usize, etext as usize
+        );
+        debug!(
+            "[kernel] .rodata [{:#x}, {:#x})",
+            srodata as usize, erodata as usize
+        );
+        debug!(
+            "[kernel] .data [{:#x}, {:#x})",
+            sdata as usize, edata as usize
+        );
         debug!(
             ".bss [{:#x}, {:#x})",
             sbss_with_stack as usize, ebss as usize
@@ -357,6 +366,7 @@ impl MemorySet {
         let satp = self.page_table.token();
         unsafe {
             satp::write(satp);
+            // 通知 CPU 页表已经被修改，刷新 TLB 地址翻译缓存
             asm!("sfence.vma");
         }
     }
