@@ -20,6 +20,7 @@ SECTIONS
         *(.data .data.*)
         *(.sdata .sdata.*)
     }
+     . = ALIGN(4K);
     .bss : {
         *(.bss .bss.*)
         *(.sbss .sbss.*)

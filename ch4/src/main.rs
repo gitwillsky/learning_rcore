@@ -21,6 +21,7 @@
 #![no_main]
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
+#![feature(fn_align)]
 
 #[macro_use]
 extern crate alloc;

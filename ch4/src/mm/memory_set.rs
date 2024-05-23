@@ -45,8 +45,8 @@ lazy_static! {
 #[derive(Debug, Copy, Clone, PartialEq)]
 /// map type for memory set: identical or framed
 pub enum MapType {
-    Identical,
-    Framed,
+    Identical, // 虚拟地址和物理地址一对一映射方式
+    Framed,    // 分页模式下的物理页帧映射方式
 }
 
 bitflags! {
@@ -87,7 +87,9 @@ impl MapArea {
     pub fn map_one(&mut self, page_table: &mut PageTable, vpn: VirtPageNum) {
         let ppn: PhysPageNum;
         match self.map_type {
+            // 恒等映射
             MapType::Identical => ppn = PhysPageNum(vpn.0),
+            // 物理页帧映射
             MapType::Framed => {
                 let frame = frame_alloc().unwrap();
                 ppn = frame.ppn;
@@ -157,13 +159,14 @@ impl MapArea {
     }
 }
 
-///  controls virtual memory space
+/// 虚拟地址空间 
 pub struct MemorySet {
     page_table: PageTable,
     areas: Vec<MapArea>,
 }
 
 impl MemorySet {
+    /// 新建一个空的地址空间
     pub fn new_bare() -> Self {
         Self {
             page_table: PageTable::new(),

@@ -20,7 +20,7 @@ use crate::task::{
 };
 use crate::timer::set_next_trigger;
 use core::arch::{asm, global_asm};
-use log::debug;
+use log::{debug, error};
 use riscv::register::{
     mtvec::TrapMode,
     scause::{self, Exception, Interrupt, Trap},
@@ -57,6 +57,7 @@ pub fn enable_timer_interrupt() {
 /// handle an interrupt, exception, or system call from user space
 pub fn trap_handler() -> ! {
     set_kernel_trap_entry();
+    // 在内核空间获取当前应用的上下文
     let cx = current_trap_cx();
     let scause = scause::read();
     let stval = stval::read();
@@ -70,11 +71,11 @@ pub fn trap_handler() -> ! {
         | Trap::Exception(Exception::StorePageFault)
         | Trap::Exception(Exception::LoadFault)
         | Trap::Exception(Exception::LoadPageFault) => {
-            println!("[kernel] PageFault in application, bad addr = {:#x}, bad instruction = {:#x}, kernel killed it.", stval, cx.sepc);
+            error!("[kernel] PageFault in application, bad addr = {:#x}, bad instruction = {:#x}, kernel killed it.", stval, cx.sepc);
             exit_current_and_run_next();
         }
         Trap::Exception(Exception::IllegalInstruction) => {
-            println!("[kernel] IllegalInstruction in application, kernel killed it.");
+            error!("[kernel] IllegalInstruction in application, kernel killed it.");
             exit_current_and_run_next();
         }
         Trap::Interrupt(Interrupt::SupervisorTimer) => {
@@ -118,6 +119,7 @@ pub fn trap_return() -> ! {
 }
 
 #[no_mangle]
+#[repr(align(4))]
 /// Unimplement: traps/interrupts/exceptions from kernel mode
 /// Todo: Chapter 9: I/O device
 pub fn trap_from_kernel() -> ! {

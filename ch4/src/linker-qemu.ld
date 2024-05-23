@@ -47,7 +47,7 @@ SECTIONS
 
     . = ALIGN(4K);
     ebss = .;
-    ekernel = .;
+    ekernel = .; /*内核代码、数据终止地址*/
 
     /DISCARD/ : {
         *(.eh_frame)

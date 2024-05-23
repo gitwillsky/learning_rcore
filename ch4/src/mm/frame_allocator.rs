@@ -1,5 +1,4 @@
-//! Implementation of [`FrameAllocator`] which controls
-//! all the frames in the operating system
+//! 物理页帧的实现
 
 use core::fmt::Debug;
 
@@ -18,8 +17,8 @@ pub struct FrameTracker {
 
 impl FrameTracker {
     pub fn new(ppn: PhysPageNum) -> Self {
-        // page cleaning
         let bytes_array = ppn.get_bytes_array();
+        // page cleaning
         for i in bytes_array {
             *i = 0;
         }
@@ -47,8 +46,8 @@ trait FrameAllocator {
 
 /// an implementation for frame allocator
 pub struct StackFrameAllocator {
-    current: usize,
-    end: usize,
+    current: usize, // 空闲内存的起始物理页号
+    end: usize,     // 空闲内存的结束物理页号
     recycled: Vec<usize>,
 }
 
